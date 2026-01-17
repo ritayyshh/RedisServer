@@ -1,11 +1,12 @@
 package server
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
+	"github.com/ritayyshh/RedisServer/handler"
 	"github.com/ritayyshh/RedisServer/resp"
 )
 
@@ -32,22 +33,38 @@ func StartServer() {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	reader := bufio.NewReader(conn)
-	buffer := make([]byte, 1024)
-
 	for {
-		n, err := reader.Read(buffer)
+		respReader := resp.NewResp(conn)
+		value, err := respReader.Read()
 		if err != nil {
 			log.Printf("Error reading: %s", err.Error())
 			conn.Close()
 			return
 		}
 
-		fmt.Println(n)
+		if value.Typ != "array" {
+			fmt.Println("Invalid request, expected array")
+			continue
+		}
 
-		conn.Write([]byte("+OK\r\n"))
+		if len(value.Array) == 0 {
+			fmt.Println("Invalid request, expected array length > 0")
+			continue
+		}
+
+		command := strings.ToUpper(value.Array[0].Bulk)
+		args := value.Array[1:]
 
 		writer := resp.NewWriter(conn)
-		writer.Write(resp.Value{Typ: "string", Str: "OK"})
+
+		handler, ok := handler.Handlers[command]
+		if !ok {
+			fmt.Println("Invalid command: ", command)
+			writer.Write(resp.Value{Typ: "string", Str: ""})
+			continue
+		}
+
+		result := handler(args)
+		writer.Write(result)
 	}
 }

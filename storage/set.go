@@ -1,22 +1,25 @@
 package storage
 
 import (
-	"time"
+	"github.com/ritayyshh/RedisServer/resp"
 )
 
 func (storage *Storage) Set(
-	key string,
-	value interface{},
-	timestamp time.Time,
-) error {
+	args []resp.Value) resp.Value {
+	if len(args) != 2 {
+		return resp.Value{Typ: "error", Str: "ERR wrong number of arguments for 'set' command"}
+	}
+
+	key := args[0].Bulk
+	value := args[1].Bulk
+
 	newStoreWrite := &StoreWrite{
-		createdAt: timestamp,
-		value:     value,
+		value: value,
 	}
 
 	storage.mu.Lock()
 	(*storage.store)[key] = *newStoreWrite
 	storage.mu.Unlock()
 
-	return nil
+	return resp.Value{Typ: "string", Str: "OK"}
 }

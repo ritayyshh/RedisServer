@@ -2,12 +2,10 @@ package storage
 
 import (
 	"sync"
-	"time"
 )
 
 type StoreWrite struct {
-	createdAt time.Time
-	value     interface{}
+	value string
 }
 
 type Storage struct {

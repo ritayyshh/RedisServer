@@ -27,6 +27,10 @@ type Resp struct {
 	reader *bufio.Reader
 }
 
+func NewResp(rd io.Reader) *Resp {
+	return &Resp{reader: bufio.NewReader(rd)}
+}
+
 func (r *Resp) readLine() (line []byte, n int, err error) {
 	for {
 		b, err := r.reader.ReadByte()
