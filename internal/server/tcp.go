@@ -42,5 +42,7 @@ func handleConnection(conn net.Conn) {
 		}
 
 		fmt.Println(n)
+
+		conn.Write([]byte("+OK\r\n"))
 	}
 }
