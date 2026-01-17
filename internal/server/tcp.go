@@ -2,6 +2,7 @@ package server
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net"
 )
@@ -40,7 +41,7 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		conn.Write([]byte("+OK\r\n"))
+		fmt.Println(n)
 
 		conn.Write([]byte("+OK\r\n"))
 	}
