@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+
+	"github.com/ritayyshh/RedisServer/resp"
 )
 
 func StartServer() {
@@ -44,5 +46,8 @@ func handleConnection(conn net.Conn) {
 		fmt.Println(n)
 
 		conn.Write([]byte("+OK\r\n"))
+
+		writer := resp.NewWriter(conn)
+		writer.Write(resp.Value{Typ: "string", Str: "OK"})
 	}
 }
